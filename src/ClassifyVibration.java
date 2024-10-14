@@ -1,3 +1,7 @@
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,10 +21,15 @@ public class ClassifyVibration extends PApplet {
 	AudioIn in;
 	Waveform waveform;
 	int bands = 512;
-	int nsamples = 1024;
+
+	float windowLengthMs = 50;  // Window length in milliseconds, change the value to adjust the window length
+	float fs = 44100;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
+	int nsamples = (int)(fs * windowLengthMs / 1000);  // Convert ms to seconds
+
+	// int nsamples = 1024;
 	float[] spectrum = new float[bands];
 	float[] fftFeatures = new float[bands];
-	String[] classNames = {"quiet", "hand drill", "whistling", "class clapping"};
+	String[] classNames = {"quiet", "whispering", "clapping"};
 	int classIndex = 0;
 	int dataCount = 0;
 
@@ -111,6 +120,33 @@ public class ClassifyVibration extends PApplet {
 			text("Data collected: " + dataCount, 20, 60);
 		}
 	}
+
+
+    // Method to save the trained model to a file
+    private void saveModel() {
+        if (classifier == null) {
+            println("No trained classifier to save.");
+            return;
+        }
+        try (FileOutputStream fileOut = new FileOutputStream("classifier_model.ser");
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+            out.writeObject(classifier);
+            println("Model saved successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Method to load the model from a file
+    private void loadModel() {
+        try (FileInputStream fileIn = new FileInputStream("classifier_model.ser");
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            classifier = (MLClassifier) in.readObject();
+            println("Model loaded successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 	
 	public void keyPressed() {
 		
@@ -131,10 +167,12 @@ public class ClassifyVibration extends PApplet {
 		
 		else if (key == 's') {
 			// Yang: add code to save your trained model for later use
+			saveModel();
 		}
 		
 		else if (key == 'l') {
 			// Yang: add code to load your previously trained model
+			loadModel();
 		}
 			
 		else {
@@ -143,3 +181,4 @@ public class ClassifyVibration extends PApplet {
 	}
 
 }
+

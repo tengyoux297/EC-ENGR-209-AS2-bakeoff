@@ -180,7 +180,7 @@ public class ClassifyVibration extends PApplet {
 			// classifier.loadModel("trainedModel.ser");
 		}
 		else if (key == 'd'){
-			classifier == null;
+			classifier = null;
 	        }	
 		else {
 			trainingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));

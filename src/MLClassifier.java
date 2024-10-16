@@ -1,3 +1,10 @@
+// Add for save&load file
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -85,4 +92,41 @@ public class MLClassifier {
         }
     }
     
+	/**
+	 * This function saves the current model to the given path
+	 * @param filePath
+	 */
+	public void saveModel(String filePath) {
+		try {
+			FileOutputStream fileOut = new FileOutputStream(filePath);
+			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+			out.writeObject(classifier);
+			out.writeObject(classattr);
+			out.close();
+			fileOut.close();
+			System.out.println("Model save to: " + filePath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+    
+	/**
+	 * This function loads a saved model
+	 * @param filePath
+	 */
+	// TODO: fix the classifier initialization
+	public void loadModel(String filePath){
+		try {
+			FileInputStream fileIn = new FileInputStream(filePath);
+			ObjectInputStream in = new ObjectInputStream(fileIn);
+			classifier = (SMO) in.readObject();
+			classattr = (Attribute) in.readObject();
+			
+			in.close();
+			fileIn.close();
+			System.out.println("Model loaded from: " + filePath);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

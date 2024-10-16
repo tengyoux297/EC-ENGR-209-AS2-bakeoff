@@ -167,12 +167,16 @@ public class ClassifyVibration extends PApplet {
 		
 		else if (key == 's') {
 			// Yang: add code to save your trained model for later use
-			saveModel();
+			if (classifier != null) {
+				classifier.saveModel("trainedModel.ser");
+			}
+
 		}
-		
+
 		else if (key == 'l') {
 			// Yang: add code to load your previously trained model
-			loadModel();
+			// classifier = new MLClassifier();
+			// classifier.loadModel("trainedModel.ser");
 		}
 			
 		else {

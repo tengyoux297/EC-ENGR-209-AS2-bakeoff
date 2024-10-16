@@ -25,7 +25,7 @@ public class ClassifyVibration extends PApplet {
 	Waveform waveform;
 	int bands = 512;
 
-	float windowLengthMs = 50;  // Window length in milliseconds, change the value to adjust the window length
+	float windowLengthMs = 200;  // Window length in milliseconds, change the value to adjust the window length
 	float fs = 44100;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
 	int nsamples = (int)(fs * windowLengthMs / 1000);  // Convert ms to seconds
 
@@ -201,7 +201,6 @@ public class ClassifyVibration extends PApplet {
 			// if (classifier != null) {
 			// 	classifier.saveModel("trainedModel.ser");
 			// }
-			
 			saveTrainingData("trainingData.ser");
 		}
 
@@ -214,9 +213,16 @@ public class ClassifyVibration extends PApplet {
 			classifier.train(trainingData);
 			System.out.println("Finish loading the classifier!");
 		}
+
 		else if (key == 'd'){
 			classifier = null;
-	        }	
+			trainingData = new HashMap<>();
+			{for (String className : classNames){
+				trainingData.put(className, new ArrayList<DataInstance>());
+			}}
+			System.out.println("Deleted all data for class: " + classNames[classIndex]);
+
+	    }	
 		else {
 			trainingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));
 		}

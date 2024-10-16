@@ -161,7 +161,8 @@ public class ClassifyVibration extends PApplet {
 				classifier = new MLClassifier();
 				classifier.train(trainingData);
 			}else {
-				classifier = null;
+				classifier.train(trainingData); 
+				//classifier = null;
 			}
 		}
 		
@@ -178,7 +179,9 @@ public class ClassifyVibration extends PApplet {
 			// classifier = new MLClassifier();
 			// classifier.loadModel("trainedModel.ser");
 		}
-			
+		else if (key == 'd'){
+			classifier == null;
+	        }	
 		else {
 			trainingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));
 		}

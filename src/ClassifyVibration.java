@@ -13,6 +13,9 @@ import processing.sound.FFT;
 import processing.sound.Sound;
 import processing.sound.Waveform;
 
+// save traningData
+import java.io.Serializable;
+
 /* A class with the main function and Processing visualizations to run the demo */
 
 public class ClassifyVibration extends PApplet {
@@ -29,7 +32,7 @@ public class ClassifyVibration extends PApplet {
 	// int nsamples = 1024;
 	float[] spectrum = new float[bands];
 	float[] fftFeatures = new float[bands];
-	String[] classNames = {"quiet", "whispering", "clapping"};
+	String[] classNames = {"quiet", "tap", "swipe"};
 	int classIndex = 0;
 	int dataCount = 0;
 
@@ -123,26 +126,53 @@ public class ClassifyVibration extends PApplet {
 
 
     // Method to save the trained model to a file
-    private void saveModel() {
-        if (classifier == null) {
-            println("No trained classifier to save.");
-            return;
-        }
-        try (FileOutputStream fileOut = new FileOutputStream("classifier_model.ser");
-             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
-            out.writeObject(classifier);
-            println("Model saved successfully.");
+    // private void saveModel() {
+        // if (classifier == null) {
+        //     println("No trained classifier to save.");
+        //     return;
+        // }
+        // try (FileOutputStream fileOut = new FileOutputStream("classifier_model.ser");
+        //      ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+        //     out.writeObject(classifier);
+        //     println("Model saved successfully.");
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
+    // }
+
+    // Method to load the model from a file
+    // private void loadModel() {
+        // try (FileInputStream fileIn = new FileInputStream("classifier_model.ser");
+        //      ObjectInputStream in = new ObjectInputStream(fileIn)) {
+        //     classifier = (MLClassifier) in.readObject();
+        //     println("Model loaded successfully.");
+        // } catch (Exception e) {
+        //     e.printStackTrace();
+        // }
+
+    // }
+
+	public void saveTrainingData(String filepath) {
+        try {
+            FileOutputStream fileOut = new FileOutputStream(filepath);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(trainingData);  // Serialize the trainingData list
+            out.close();
+            fileOut.close();
+            System.out.println("Training data saved to " + filepath);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Method to load the model from a file
-    private void loadModel() {
-        try (FileInputStream fileIn = new FileInputStream("classifier_model.ser");
-             ObjectInputStream in = new ObjectInputStream(fileIn)) {
-            classifier = (MLClassifier) in.readObject();
-            println("Model loaded successfully.");
+    public void loadTrainingData(String filepath) {
+        try {
+            FileInputStream fileIn = new FileInputStream(filepath);
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            trainingData = (Map<String, List<DataInstance>>) in.readObject();  // Deserialize the trainingData map
+            in.close();
+            fileIn.close();
+            System.out.println("Training data loaded from " + filepath);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -168,19 +198,24 @@ public class ClassifyVibration extends PApplet {
 		
 		else if (key == 's') {
 			// Yang: add code to save your trained model for later use
-			if (classifier != null) {
-				classifier.saveModel("trainedModel.ser");
-			}
-
+			// if (classifier != null) {
+			// 	classifier.saveModel("trainedModel.ser");
+			// }
+			
+			saveTrainingData("trainingData.ser");
 		}
 
 		else if (key == 'l') {
 			// Yang: add code to load your previously trained model
 			// classifier = new MLClassifier();
 			// classifier.loadModel("trainedModel.ser");
+			loadTrainingData("trainingData.ser");
+			classifier = new MLClassifier();
+			classifier.train(trainingData);
+			System.out.println("Finish loading the classifier!");
 		}
 		else if (key == 'd'){
-			classifier == null;
+			classifier = null;
 	        }	
 		else {
 			trainingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));

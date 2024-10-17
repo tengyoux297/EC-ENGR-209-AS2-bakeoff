@@ -32,7 +32,7 @@ public class ClassifyVibration extends PApplet {
 	// int nsamples = 1024;
 	float[] spectrum = new float[bands];
 	float[] fftFeatures = new float[bands];
-	String[] classNames = {"quiet", "tap", "swipe"};
+	String[] classNames = {"do - c", "re - d", "mi - e", "fa - f", "so - g", "la - a", "ti - b"};
 	int classIndex = 0;
 	int dataCount = 0;
 
@@ -114,6 +114,7 @@ public class ClassifyVibration extends PApplet {
 		if(classifier != null) {
 			String guessedLabel = classifier.classify(captureInstance(null));
 			
+			System.out.print("Being classified here"); 
 			// Yang: add code to stabilize your classification results
 			
 			text("classified as: " + guessedLabel, 20, 30);

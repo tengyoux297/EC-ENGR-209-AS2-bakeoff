@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.sound.midi.*;
 
 import processing.core.PApplet;
 import processing.sound.AudioIn;
@@ -116,6 +117,28 @@ public class ClassifyVibration extends PApplet {
 			
 			System.out.print("Being classified here"); 
 			// Yang: add code to stabilize your classification results
+			// C4 (middle C) = 60 D4=62 E4=64 F4=65 G4=67 A4=69 B=71 C5 = 72
+			try {
+				// Get a synthesizer (for output only) and open it
+				Synthesizer synthesizer = MidiSystem.getSynthesizer();
+				synthesizer.open();
+	
+				// Get MIDI channels (output channels for playing notes)
+				MidiChannel[] channels = synthesizer.getChannels();
+				MidiChannel piano = channels[0]; // Channel 0 is a piano
+	
+				piano.noteOn(60, 80);  // Note 60 is Middle C, velocity 80
+				Thread.sleep(1000);    // Play the note for 1 second
+				piano.noteOff(60);     // Turn off the note
+	
+				// Close the synthesizer when done
+				synthesizer.close();
+			} catch (MidiUnavailableException e) {
+				System.err.println("MIDI device is unavailable: " + e.getMessage());
+			} catch (InterruptedException e) {
+				System.err.println("Thread was interrupted: " + e.getMessage());
+			}
+			
 			
 			text("classified as: " + guessedLabel, 20, 30);
 		}else {

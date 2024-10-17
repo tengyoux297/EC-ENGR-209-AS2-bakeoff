@@ -124,34 +124,9 @@ public class ClassifyVibration extends PApplet {
 		}
 	}
 
-
-    // Method to save the trained model to a file
-    // private void saveModel() {
-        // if (classifier == null) {
-        //     println("No trained classifier to save.");
-        //     return;
-        // }
-        // try (FileOutputStream fileOut = new FileOutputStream("classifier_model.ser");
-        //      ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
-        //     out.writeObject(classifier);
-        //     println("Model saved successfully.");
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
-    // }
-
-    // Method to load the model from a file
-    // private void loadModel() {
-        // try (FileInputStream fileIn = new FileInputStream("classifier_model.ser");
-        //      ObjectInputStream in = new ObjectInputStream(fileIn)) {
-        //     classifier = (MLClassifier) in.readObject();
-        //     println("Model loaded successfully.");
-        // } catch (Exception e) {
-        //     e.printStackTrace();
-        // }
-
-    // }
-
+	/*
+	 * This function saves the trainingData
+	 */
 	public void saveTrainingData(String filepath) {
         try {
             FileOutputStream fileOut = new FileOutputStream(filepath);
@@ -165,6 +140,9 @@ public class ClassifyVibration extends PApplet {
         }
     }
 
+	/*
+	 * This function loads the trainingData
+	 */
     public void loadTrainingData(String filepath) {
         try {
             FileInputStream fileIn = new FileInputStream(filepath);
@@ -195,25 +173,21 @@ public class ClassifyVibration extends PApplet {
 				//classifier = null;
 			}
 		}
-		
+
+		// save the collected trainingData to a file
 		else if (key == 's') {
-			// Yang: add code to save your trained model for later use
-			// if (classifier != null) {
-			// 	classifier.saveModel("trainedModel.ser");
-			// }
 			saveTrainingData("trainingData.ser");
 		}
 
+		// only load
 		else if (key == 'l') {
-			// Yang: add code to load your previously trained model
-			// classifier = new MLClassifier();
-			// classifier.loadModel("trainedModel.ser");
 			loadTrainingData("trainingData.ser");
 			classifier = new MLClassifier();
 			classifier.train(trainingData);
 			System.out.println("Finish loading the classifier!");
 		}
 
+		// delete classifier and the trainingData
 		else if (key == 'd'){
 			classifier = null;
 			trainingData = new HashMap<>();
@@ -223,6 +197,13 @@ public class ClassifyVibration extends PApplet {
 			System.out.println("Deleted all data for class: " + classNames[classIndex]);
 
 	    }	
+
+		// only delete the classifier so we can add more trainingData
+		else if (key == 'a'){
+			classifier = null;
+		}
+
+		// otherwise we collect more data
 		else {
 			trainingData.get(classNames[classIndex]).add(captureInstance(classNames[classIndex]));
 		}

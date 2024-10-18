@@ -161,9 +161,6 @@ public class ClassifyVibration extends PApplet {
 			} catch (InterruptedException e) {
 				System.err.println("Thread was interrupted: " + e.getMessage());
 			}
-			if(!guessedLabel.equals("quiet")){
-				System.out.println("Playing some notes!");
-			}
 		}else {
 			text(classNames[classIndex], 20, 30);
 			dataCount = trainingData.get(classNames[classIndex]).size();

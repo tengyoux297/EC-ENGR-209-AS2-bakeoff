@@ -116,7 +116,8 @@ public class ClassifyVibration extends PApplet {
 			String guessedLabel = classifier.classify(captureInstance(null));	
 			// Yang: add code to stabilize your classification result
 			text("classified as: " + guessedLabel, 20, 30);
-
+            //add some code to make the UI more visual 
+			
 			// C4 (middle C) = 60 D4=62 E4=64 F4=65 G4=67 A4=69 B=71 C5 = 72
 			try {
 				// Get a synthesizer (for output only) and open it

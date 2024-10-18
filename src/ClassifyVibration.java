@@ -33,7 +33,7 @@ public class ClassifyVibration extends PApplet {
 	// int nsamples = 1024;
 	float[] spectrum = new float[bands];
 	float[] fftFeatures = new float[bands];
-	String[] classNames = {"do - c", "re - d", "mi - e", "fa - f", "so - g", "la - a", "ti - b"};
+	String[] classNames = {"quiet","do - c", "re - d", "mi - e", "fa - f", "so - g", "la - a", "ti - b"};
 	int classIndex = 0;
 	int dataCount = 0;
 

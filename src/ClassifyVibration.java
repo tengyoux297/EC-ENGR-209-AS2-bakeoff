@@ -146,7 +146,7 @@ public class ClassifyVibration extends PApplet {
 					else if(guessedLabel.equals("la - a")){
 						piano.noteOn(69, 80);  // Note 69 is Middle A, velocity 80
 					}
-					else if(guessedLabel.equals("re - d")){
+					else if(guessedLabel.equals("ti - b")){
 						piano.noteOn(71, 80);  // Note 71 is Middle B, velocity 80
 					}		
 					// Close the synthesizer when done

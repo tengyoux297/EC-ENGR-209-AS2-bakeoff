@@ -27,7 +27,7 @@ public class ClassifyVibration extends PApplet {
 	int bands = 512;
 
 	float windowLengthMs = 1000;  // Window length in milliseconds, change the value to adjust the window length
-	float fs = 44100;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
+	float fs = 88200;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
 	int nsamples = (int)(fs * windowLengthMs / 1000);  // Convert ms to seconds
 
 	// int nsamples = 1024;

@@ -52,7 +52,9 @@ public class ClassifyVibration extends PApplet {
 		DataInstance res = new DataInstance();
 		res.label = label;
 		res.measurements = fftFeatures.clone();
+
 		normalizeDataInstance(res);
+
 		return res;
 	}
 	// Z-score normalization for a single DataInstance's measurements
@@ -80,6 +82,12 @@ public class ClassifyVibration extends PApplet {
 			}
 		}
 	}
+
+	public void normalizeDataInstanceMinMax(DataInstance dataInstance){
+
+	}
+
+
 	// Z-score normalization for fftFeatures array
 	public void normalizeFftFeatures() {
 		float mean = 0;
@@ -144,7 +152,7 @@ public class ClassifyVibration extends PApplet {
 		// if (classifier == null) {
 			waveform.analyze();
 
-			if(classifier == null){
+			// if(classifier == null){
 				beginShape();
 			
 				for(int i = 0; i < nsamples; i++)
@@ -156,7 +164,7 @@ public class ClassifyVibration extends PApplet {
 				}
 				
 				endShape();
-			}
+			// }
 
 			fft.analyze(spectrum);
 
@@ -165,13 +173,22 @@ public class ClassifyVibration extends PApplet {
 				// Only consider magnitudes above the threshold
 
 				// only draw the waveform when the classifier is null
-				if(classifier == null){
-					line(i, height, i, height - spectrum[i] * height * 40);
-				}
+				// if(classifier == null){
+					// line(i, height, i, height - spectrum[i] * height * 40);
+				// }
+
 				fftFeatures[i] = spectrum[i];
 			// } else {
 			// 	fftFeatures[i] = 0; // Ignore or reset low magnitudes
 			// }
+		}
+
+		// normalize the fft features right after we collect them
+		// normalizeFftFeatures();
+
+		// draw the fftFeatures after normalization
+		for(int i = 0; i < bands; i++){
+			line(i, height, i, height - fftFeatures[i] * height * 40);
 		}
 
 		// }
@@ -182,7 +199,8 @@ public class ClassifyVibration extends PApplet {
 
 		if(classifier != null) {
 			// normalizeFftFeatures();
-			drawStaff();
+
+			// drawStaff();
         	
 			String guessedLabel = classifier.classify(captureInstance(null));	
 			// Yang: add code to stabilize your classification result
@@ -233,23 +251,25 @@ public class ClassifyVibration extends PApplet {
 				System.err.println("Thread was interrupted: " + e.getMessage());
 			}
 		}
-		fill(255);
-		textSize(30);
+
+		// fill(255);
+		// textSize(30);
 		
 	
-		if (classifier != null) {
-			// Classification
-			String guessedLabel = classifier.classify(captureInstance(null));
+		// if (classifier != null) {
+		// 	// Classification
+		// 	String guessedLabel = classifier.classify(captureInstance(null));
 	
 	
-			text("classified as: " + guessedLabel, 20, 30);
+		// 	text("classified as: " + guessedLabel, 20, 30);
 	
-			// Draw the musical staff and the recognized note as a square on the staff
-			drawStaff();
-			drawNoteOnStaff(guessedLabel);
+		// 	// Draw the musical staff and the recognized note as a square on the staff
+		// 	drawStaff();
+		// 	drawNoteOnStaff(guessedLabel);
 	
-			// MIDI code follows as before...
-		} 
+		// 	// MIDI code follows as before...
+		// } 
+
 		else {
 			// If classifier is not initialized, display class index and data count
 			text(classNames[classIndex], 20, 30);

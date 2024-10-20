@@ -90,7 +90,6 @@ public class ClassifyVibration extends PApplet {
 		fill(0);
 		stroke(255);
 		
-<<<<<<< HEAD
 		if (classifier == null) {
 			waveform.analyze();
 
@@ -172,26 +171,6 @@ public class ClassifyVibration extends PApplet {
 				System.err.println("MIDI device is unavailable: " + e.getMessage());
 			} catch (InterruptedException e) {
 				System.err.println("Thread was interrupted: " + e.getMessage());
-=======
-		// Draw the waveform
-		if (classifier == null) {
-			waveform.analyze();
-			beginShape();
-			for(int i = 0; i < nsamples; i++) {
-				vertex(
-					map(i, 0, nsamples, 0, width),
-					map(waveform.data[i], -1, 1, 0, height)
-				);
-		}
-		endShape();}
-	
-		// Perform FFT and draw frequency spectrum
-		if (classifier == null) {
-			fft.analyze(spectrum);
-			for(int i = 0; i < bands; i++) {
-				line(i, height, i, height - spectrum[i] * height * 40);
-				fftFeatures[i] = spectrum[i];
->>>>>>> 131d7b553fe33eff5027299e956ff30d591dc3bd
 			}
 		}
 			fill(255);
@@ -217,7 +196,6 @@ public class ClassifyVibration extends PApplet {
 			text("Data collected: " + dataCount, 20, 60);
 		}
 	}
-<<<<<<< HEAD
 int lineSpacing = 20;
 	// Centered and enlarged staff
 void drawStaff() {
@@ -276,73 +254,6 @@ void drawNoteOnStaff(String note) {
     noStroke();
     rect(noteX, noteY - 10, 20, 20);  // Draw the square note
 }
-=======
-	int lineSpacing = 20; // Spacing between staff lines
-	// Function to draw a 5-line staff
-	void drawStaff() {
-		
-	
-		// Draw the 5 horizontal lines of the staff
-		int staffHeight = 5 * lineSpacing;  // Total height of the 5-line staff
-    	int staffTop = height / 2 - staffHeight / 2;  // Center the staff vertically
-
-    // Draw the 5 horizontal lines of the staff
-		for (int i = 0; i < 5; i++) {
-			line(50, staffTop + i * lineSpacing, width - 50, staffTop + i * lineSpacing);
-		}
-	}
-	
-	// Function to map notes to their position on the staff
-	void drawNoteOnStaff(String note) {
-		
-		int staffHeight = 5 * lineSpacing;  // Total height of the 5-line staff
-    	int staffTop = height / 2 - staffHeight / 2;  // Center the staff vertically
-		
-		int noteX = 100;       // X-position for the note (you can change or animate this)
-	
-		// Map note names to Y positions on the staff
-		int noteY = 0;
-		switch (note) {
-			case "do - c":
-				
-				noteX = 100;
-				noteY = staffTop + 4 * lineSpacing;  // Middle C on the first ledger line below the staff
-				break;
-			case "re - d":
-				noteX = 150;
-				noteY = staffTop + (int)(3.5 * lineSpacing);  // D in the space below the staff
-				break;
-			case "mi - e":
-				noteX = 200;
-				noteY = staffTop + 3 * lineSpacing;  // E on the first line of the staff
-				break;
-			case "fa - f":
-				noteX = 250;
-				noteY = staffTop + (int)(2.5 * lineSpacing);  // F in the first space of the staff
-				break;
-			case "so - g":
-				noteX = 300;
-				noteY = staffTop + 2 * lineSpacing;  // G on the second line of the staff
-				break;
-			case "la - a":
-				noteX = 350;
-				noteY = staffTop + (int)(1.5 * lineSpacing);  // A in the second space of the staff
-				break;
-			case "ti - b":
-				noteX = 400;
-				noteY = staffTop + 1 * lineSpacing;  // B on the third line of the staff
-				break;
-			case "quiet":
-				return; // Do not draw anything if the input is quiet
-		}
-	
-		// Draw the note as a small square or circle on the staff
-		fill(255, 0, 0);  // Red color for the note
-		noStroke();
-		rect(noteX, noteY - 10, 20, 20);  // Draw the square note
-	}
-	
->>>>>>> 131d7b553fe33eff5027299e956ff30d591dc3bd
 
 	/*
 	 * This function saves the trainingData

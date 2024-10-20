@@ -162,25 +162,25 @@ public class ClassifyVibration extends PApplet {
 				MidiChannel[] channels = synthesizer.getChannels();
 				MidiChannel piano = channels[0]; // Channel 0 is a piano
 	
-				if(stabilizedLabel == "do - c"){
+				if(stabilizedLabel.equals("do - c")){
 					piano.noteOn(60, 80);  // Note 60 is Middle C, velocity 80
 				}
-				else if(stabilizedLabel == "re - d"){
+				else if(stabilizedLabel.equals("re - d")){
 					piano.noteOn(62, 80);  // Note 62 is Middle D, velocity 80
 				}
-				else if(stabilizedLabel == "mi - e"){
+				else if(stabilizedLabel.equals("mi - e")){
 					piano.noteOn(64, 80);  // Note 64 is Middle E, velocity 80
 				}
-				else if(stabilizedLabel == "fa - f"){
+				else if(stabilizedLabel.equals("fa - f")){
 					piano.noteOn(65, 80);  // Note 65 is Middle F, velocity 80
 				}
-				else if(stabilizedLabel == "so - g"){
+				else if(stabilizedLabel.equals("so - g")){
 					piano.noteOn(67, 80);  // Note 67 is Middle G, velocity 80	
 				}
-				else if(stabilizedLabel == "la - a"){
+				else if(stabilizedLabel.equals("la - a")){
 					piano.noteOn(69, 80);  // Note 69 is Middle A, velocity 80
 				}
-				else if(stabilizedLabel == "re - d"){
+				else if(stabilizedLabel.equals("ti - b")){
 					piano.noteOn(71, 80);  // Note 71 is Middle B, velocity 80
 				}		
 				// Close the synthesizer when done

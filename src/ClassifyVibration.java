@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -178,6 +179,15 @@ public class ClassifyVibration extends PApplet {
 	 * This function saves the trainingData
 	 */
 	public void saveTrainingData(String filepath) {
+		File file = new File(filepath);
+
+		// delete the existing file
+		if(file.exists()){
+			if(!file.delete()){
+				System.out.println("Failed to delete the file: " + filepath);
+			}
+		}
+		
         try {
             FileOutputStream fileOut = new FileOutputStream(filepath);
             ObjectOutputStream out = new ObjectOutputStream(fileOut);

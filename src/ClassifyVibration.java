@@ -38,7 +38,7 @@ public class ClassifyVibration extends PApplet {
 	int classIndex = 0;
 	int dataCount = 0;
 
-	double magnitudeThreshold = 0.05; // Adjust this value as needed
+	double magnitudeThreshold = 0.03;//0.05; // Adjust this value as needed
 
 	MLClassifier classifier;
 
@@ -169,18 +169,18 @@ public class ClassifyVibration extends PApplet {
 			fft.analyze(spectrum);
 
 		for(int i = 0; i < bands; i++){
-			// if (spectrum[i] >= magnitudeThreshold) {
-				// Only consider magnitudes above the threshold
+			// Only consider magnitudes above the threshold
+			if (spectrum[i] >= magnitudeThreshold) {
 
 				// only draw the waveform when the classifier is null
 				// if(classifier == null){
-					// line(i, height, i, height - spectrum[i] * height * 40);
+				// 	line(i, height, i, height - spectrum[i] * height * 40);
 				// }
 
 				fftFeatures[i] = spectrum[i];
-			// } else {
-			// 	fftFeatures[i] = 0; // Ignore or reset low magnitudes
-			// }
+			} else {
+				fftFeatures[i] = 0; // Ignore or reset low magnitudes
+			}
 		}
 
 		// normalize the fft features right after we collect them

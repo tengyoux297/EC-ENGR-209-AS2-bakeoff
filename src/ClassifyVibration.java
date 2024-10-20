@@ -90,90 +90,114 @@ public class ClassifyVibration extends PApplet {
 		fill(0);
 		stroke(255);
 		
-		waveform.analyze();
-
-		beginShape();
-		  
-		for(int i = 0; i < nsamples; i++)
-		{
-			vertex(
+		// Draw the waveform
+		if (classifier == null) {
+			waveform.analyze();
+			beginShape();
+			for(int i = 0; i < nsamples; i++) {
+				vertex(
 					map(i, 0, nsamples, 0, width),
 					map(waveform.data[i], -1, 1, 0, height)
-					);
+				);
 		}
-		
-		endShape();
-
-		fft.analyze(spectrum);
-
-		// for(int i = 0; i < bands; i++){
-		// 	if (spectrum[i] >= magnitudeThreshold) {
-		// 		// Only consider magnitudes above the threshold
-		// 		line(i, height, i, height - spectrum[i] * height * 40);
-		// 		fftFeatures[i] = spectrum[i];
-		// 	} else {
-		// 		fftFeatures[i] = 0; // Ignore or reset low magnitudes
-		// 	}
-		// }
-		
-
-		fill(255);
-		textSize(30);
-		if(classifier != null) {
-			String guessedLabel = classifier.classify(captureInstance(null));	
-			// Yang: add code to stabilize your classification result
-			text("classified as: " + guessedLabel, 20, 30);
-
-            //add some code to make the UI more visual
-			// C4 (middle C) = 60 D4=62 E4=64 F4=65 G4=67 A4=69 B=71 C5 = 72
-			try {
-				if(!guessedLabel.equals("quiet")){
-					// Get a synthesizer (for output only) and open it
-					Synthesizer synthesizer = MidiSystem.getSynthesizer();
-					synthesizer.open();
-					// Get MIDI channels (output channels for playing notes)
-					MidiChannel[] channels = synthesizer.getChannels();
-					MidiChannel piano = channels[0]; // Channel 0 is a piano
-		
-					if(guessedLabel.equals("do - c")){
-						piano.noteOn(60, 80);  // Note 60 is Middle C, velocity 80
-					}
-					else if(guessedLabel.equals("re - d")){
-						piano.noteOn(62, 80);  // Note 62 is Middle D, velocity 80
-					}
-					else if(guessedLabel.equals("mi - e")){
-						piano.noteOn(64, 80);  // Note 64 is Middle E, velocity 80
-					}
-					else if(guessedLabel.equals("fa - f")){
-						piano.noteOn(65, 80);  // Note 65 is Middle F, velocity 80
-					}
-					else if(guessedLabel.equals("so - g")){
-						piano.noteOn(67, 80);  // Note 67 is Middle G, velocity 80	
-					}
-					else if(guessedLabel.equals("la - a")){
-						piano.noteOn(69, 80);  // Note 69 is Middle A, velocity 80
-					}
-					else if(guessedLabel.equals("ti - b")){
-						piano.noteOn(71, 80);  // Note 71 is Middle B, velocity 80
-					}		
-					// Close the synthesizer when done
-					Thread.sleep(1000);    // Play the note for 1 second
-					piano.noteOff(60);     // Turn off the note
-					synthesizer.close();
-				}
-
-
-			} catch (MidiUnavailableException e) {
-				System.err.println("MIDI device is unavailable: " + e.getMessage());
-			} catch (InterruptedException e) {
-				System.err.println("Thread was interrupted: " + e.getMessage());
+		endShape();}
+	
+		// Perform FFT and draw frequency spectrum
+		if (classifier == null) {
+			fft.analyze(spectrum);
+			for(int i = 0; i < bands; i++) {
+				line(i, height, i, height - spectrum[i] * height * 40);
+				fftFeatures[i] = spectrum[i];
 			}
-		}else {
+		}
+			fill(255);
+		textSize(30);
+		
+	
+		if (classifier != null) {
+			// Classification
+			String guessedLabel = classifier.classify(captureInstance(null));
+	
+	
+			text("classified as: " + guessedLabel, 20, 30);
+	
+			// Draw the musical staff and the recognized note as a square on the staff
+			drawStaff();
+			drawNoteOnStaff(guessedLabel);
+	
+			// MIDI code follows as before...
+		} else {
+			// If classifier is not initialized, display class index and data count
 			text(classNames[classIndex], 20, 30);
 			dataCount = trainingData.get(classNames[classIndex]).size();
 			text("Data collected: " + dataCount, 20, 60);
 		}
 	}
+	int lineSpacing = 20; // Spacing between staff lines
+	// Function to draw a 5-line staff
+	void drawStaff() {
+		
+	
+		// Draw the 5 horizontal lines of the staff
+		int staffHeight = 5 * lineSpacing;  // Total height of the 5-line staff
+    	int staffTop = height / 2 - staffHeight / 2;  // Center the staff vertically
+
+    // Draw the 5 horizontal lines of the staff
+		for (int i = 0; i < 5; i++) {
+			line(50, staffTop + i * lineSpacing, width - 50, staffTop + i * lineSpacing);
+		}
+	}
+	
+	// Function to map notes to their position on the staff
+	void drawNoteOnStaff(String note) {
+		
+		int staffHeight = 5 * lineSpacing;  // Total height of the 5-line staff
+    	int staffTop = height / 2 - staffHeight / 2;  // Center the staff vertically
+		
+		int noteX = 100;       // X-position for the note (you can change or animate this)
+	
+		// Map note names to Y positions on the staff
+		int noteY = 0;
+		switch (note) {
+			case "do - c":
+				
+				noteX = 100;
+				noteY = staffTop + 4 * lineSpacing;  // Middle C on the first ledger line below the staff
+				break;
+			case "re - d":
+				noteX = 150;
+				noteY = staffTop + (int)(3.5 * lineSpacing);  // D in the space below the staff
+				break;
+			case "mi - e":
+				noteX = 200;
+				noteY = staffTop + 3 * lineSpacing;  // E on the first line of the staff
+				break;
+			case "fa - f":
+				noteX = 250;
+				noteY = staffTop + (int)(2.5 * lineSpacing);  // F in the first space of the staff
+				break;
+			case "so - g":
+				noteX = 300;
+				noteY = staffTop + 2 * lineSpacing;  // G on the second line of the staff
+				break;
+			case "la - a":
+				noteX = 350;
+				noteY = staffTop + (int)(1.5 * lineSpacing);  // A in the second space of the staff
+				break;
+			case "ti - b":
+				noteX = 400;
+				noteY = staffTop + 1 * lineSpacing;  // B on the third line of the staff
+				break;
+			case "quiet":
+				return; // Do not draw anything if the input is quiet
+		}
+	
+		// Draw the note as a small square or circle on the staff
+		fill(255, 0, 0);  // Red color for the note
+		noStroke();
+		rect(noteX, noteY - 10, 20, 20);  // Draw the square note
+	}
+	
 
 	/*
 	 * This function saves the trainingData

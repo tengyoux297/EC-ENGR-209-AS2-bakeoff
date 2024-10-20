@@ -27,7 +27,7 @@ public class ClassifyVibration extends PApplet {
 	Waveform waveform;
 	int bands = 128;
 
-	float windowLengthMs = 1000;  // Window length in milliseconds, change the value to adjust the window length
+	float windowLengthMs = 50;  // Window length in milliseconds, change the value to adjust the window length
 	float fs = 44100;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
 	int nsamples = (int)(fs * windowLengthMs / 1000);  // Convert ms to seconds
 
@@ -51,8 +51,58 @@ public class ClassifyVibration extends PApplet {
 	DataInstance captureInstance (String label){
 		DataInstance res = new DataInstance();
 		res.label = label;
+		// Normalize the fftFeatures array before storing them as measurements
+		normalizeFftFeatures();
 		res.measurements = fftFeatures.clone();
 		return res;
+	}
+	// Normalize each instance's data
+	public void normalizeDataInstance(DataInstance instance) {
+		// Normalize the fftFeatures of each instance using min-max scaling or any other method
+		float minVal = Float.MAX_VALUE;
+		float maxVal = Float.MIN_VALUE;
+
+		for (float measurement : instance.measurements) {
+			if (measurement > maxVal) {
+				maxVal = measurement;
+			}
+			if (measurement < minVal) {
+				minVal = measurement;
+			}
+		}
+
+		for (int i = 0; i < instance.measurements.length; i++) {
+			if (maxVal != minVal) {
+				instance.measurements[i] = (instance.measurements[i] - minVal) / (maxVal - minVal);
+			} else {
+				instance.measurements[i] = 0;
+			}
+		}
+	}
+	// Function to normalize the fftFeatures using min-max normalization
+	public void normalizeFftFeatures() {
+    // Find the minimum and maximum values in fftFeatures array
+		float minVal = Float.MAX_VALUE;
+		float maxVal = Float.MIN_VALUE;
+
+		// Find min and max values
+		for (int i = 0; i < fftFeatures.length; i++) {
+			if (fftFeatures[i] > maxVal) {
+				maxVal = fftFeatures[i];
+			}
+			if (fftFeatures[i] < minVal) {
+				minVal = fftFeatures[i];
+			}
+		}
+
+		// Normalize the fftFeatures using min-max normalization
+		for (int i = 0; i < fftFeatures.length; i++) {
+			if (maxVal != minVal) {  // Prevent division by zero
+				fftFeatures[i] = (fftFeatures[i] - minVal) / (maxVal - minVal);
+			} else {
+				fftFeatures[i] = 0;  // If all values are the same, set to 0
+			}
+		}
 	}
 	
 	public static void main(String[] args) {
@@ -122,6 +172,7 @@ public class ClassifyVibration extends PApplet {
 		textSize(30);
 
 		if(classifier != null) {
+			normalizeFftFeatures();
 			drawStaff();
         	
 			String guessedLabel = classifier.classify(captureInstance(null));	
@@ -290,7 +341,13 @@ void drawNoteOnStaff(String note) {
             trainingData = (Map<String, List<DataInstance>>) in.readObject();  // Deserialize the trainingData map
             in.close();
             fileIn.close();
-            System.out.println("Training data loaded from " + filepath);
+			 // Normalize the loaded training data
+			 for (String className : trainingData.keySet()) {
+				for (DataInstance instance : trainingData.get(className)) {
+					normalizeDataInstance(instance);
+				}
+			}
+            System.out.println("Training data loaded and normalized from " + filepath);
         } catch (Exception e) {
             e.printStackTrace();
         }

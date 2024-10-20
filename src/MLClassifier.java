@@ -54,7 +54,7 @@ public class MLClassifier {
 			         
         	
         	classifier.setOptions(weka.core.Utils.splitOptions("-C 1.0 -L 0.0010 "
-			         + "-P 1.0E-12 -N 10 -V -1 -W 1 "
+			         + "-P 1.0E-12 -N 0 -V -1 -W 1 "
 			         + "-K \"weka.classifiers.functions.supportVector.PolyKernel "
 			         + "-C 0 -E 1.0\""));
 			

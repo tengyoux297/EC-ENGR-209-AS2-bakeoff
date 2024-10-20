@@ -27,7 +27,7 @@ public class ClassifyVibration extends PApplet {
 	Waveform waveform;
 	int bands = 128;
 
-	float windowLengthMs = 500;  // Window length in milliseconds, change the value to adjust the window length
+	float windowLengthMs = 1000;  // Window length in milliseconds, change the value to adjust the window length
 	float fs = 44100;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
 	int nsamples = (int)(fs * windowLengthMs / 1000);  // Convert ms to seconds
 
@@ -141,39 +141,47 @@ public class ClassifyVibration extends PApplet {
 		fill(0);
 		stroke(255);
 		
-		if (classifier == null) {
+		// if (classifier == null) {
 			waveform.analyze();
 
-			beginShape();
+			if(classifier == null){
+				beginShape();
 			
-			for(int i = 0; i < nsamples; i++)
-			{
-				vertex(
-						map(i, 0, nsamples, 0, width),
-						map(waveform.data[i], -1, 1, 0, height)
-						);
+				for(int i = 0; i < nsamples; i++)
+				{
+					vertex(
+							map(i, 0, nsamples, 0, width),
+							map(waveform.data[i], -1, 1, 0, height)
+							);
+				}
+				
+				endShape();
 			}
-			
-			endShape();
 
 			fft.analyze(spectrum);
 
-		// for(int i = 0; i < bands; i++){
-		// 	if (spectrum[i] >= magnitudeThreshold) {
-		// 		// Only consider magnitudes above the threshold
-		// 		line(i, height, i, height - spectrum[i] * height * 40);
-		// 		fftFeatures[i] = spectrum[i];
-		// 	} else {
-		// 		fftFeatures[i] = 0; // Ignore or reset low magnitudes
-		// 	}
-		// }
+		for(int i = 0; i < bands; i++){
+			// if (spectrum[i] >= magnitudeThreshold) {
+				// Only consider magnitudes above the threshold
+
+				// only draw the waveform when the classifier is null
+				if(classifier == null){
+					line(i, height, i, height - spectrum[i] * height * 40);
+				}
+				fftFeatures[i] = spectrum[i];
+			// } else {
+			// 	fftFeatures[i] = 0; // Ignore or reset low magnitudes
+			// }
 		}
+
+		// }
+
 		// Display the classification result
 		fill(255);
 		textSize(30);
 
 		if(classifier != null) {
-			normalizeFftFeatures();
+			// normalizeFftFeatures();
 			drawStaff();
         	
 			String guessedLabel = classifier.classify(captureInstance(null));	
@@ -225,7 +233,7 @@ public class ClassifyVibration extends PApplet {
 				System.err.println("Thread was interrupted: " + e.getMessage());
 			}
 		}
-			fill(255);
+		fill(255);
 		textSize(30);
 		
 	
@@ -241,71 +249,77 @@ public class ClassifyVibration extends PApplet {
 			drawNoteOnStaff(guessedLabel);
 	
 			// MIDI code follows as before...
-		} else {
+		} 
+		else {
 			// If classifier is not initialized, display class index and data count
 			text(classNames[classIndex], 20, 30);
 			dataCount = trainingData.get(classNames[classIndex]).size();
 			text("Data collected: " + dataCount, 20, 60);
 		}
 	}
-int lineSpacing = 20;
+
+	int lineSpacing = 20;
 	// Centered and enlarged staff
-void drawStaff() {
-    int staffHeight = 5 * lineSpacing;  // Total height of the 5-line staff
-    int staffTop = height / 2 - staffHeight / 2;  // Center the staff vertically
+	void drawStaff() {
+		int staffHeight = 5 * lineSpacing;  // Total height of the 5-line staff
+		int staffTop = height / 2 - staffHeight / 2;  // Center the staff vertically
 
-    // Draw the 5 horizontal lines of the staff
-    for (int i = 0; i < 5; i++) {
-        line(50, staffTop + i * lineSpacing, width - 50, staffTop + i * lineSpacing);
-    }
-}
+		// Draw the 5 horizontal lines of the staff
+		for (int i = 0; i < 5; i++) {
+			line(50, staffTop + i * lineSpacing, width - 50, staffTop + i * lineSpacing);
+		}
+	}
 
-// Function to map notes to their position on the staff
-void drawNoteOnStaff(String note) {
-    int staffHeight = 5 * lineSpacing;
-    int staffTop = height / 2 - staffHeight / 2;
-    int noteX = 0;       // X-position for the note (you can change or animate this)
+	// Function to map notes to their position on the staff
+	void drawNoteOnStaff(String note) {
+		int staffHeight = 5 * lineSpacing;
+		int staffTop = height / 2 - staffHeight / 2;
+		int noteX = 0;       // X-position for the note (you can change or animate this)
 
-    // Map note names to Y positions on the staff
-    int noteY = 0;
-    switch (note) {
-        case "do - c":
-			noteX = 100;
-            noteY = staffTop + 4 * lineSpacing;  // Middle C on the first ledger line below the staff
-            break;
-        case "re - d":
-			noteX = 150;
-            noteY = staffTop + (int)(3.5 * lineSpacing);  // D in the space below the staff
-            break;
-        case "mi - e":
-			noteX = 200;
-            noteY = staffTop + (int)(3 * lineSpacing);  // E on the first line of the staff
-            break;
-        case "fa - f":
-			noteX = 250;
-            noteY = staffTop + (int)(2.5 * lineSpacing);  // F in the first space of the staff
-            break;
-        case "so - g":
-			noteX = 300;
-            noteY = staffTop + 2 * lineSpacing;  // G on the second line of the staff
-            break;
-        case "la - a":
-			noteX = 350;
-            noteY = staffTop + (int)(1.5 * lineSpacing);  // A in the second space of the staff
-            break;
-        case "ti - b":
-			noteX = 400;
-            noteY = staffTop + 1 * lineSpacing;  // B on the third line of the staff
-            break;
-        case "quiet":
-            return; // Do not draw anything if the input is quiet
-    }
+		// Map note names to Y positions on the staff
+		int noteY = 0;
+		switch (note) {
+			case "do - c":
+				noteX = 100;
+				noteY = staffTop + 4 * lineSpacing;  // Middle C on the first ledger line below the staff
+				break;
+			case "re - d":
+				noteX = 150;
+				noteY = staffTop + (int)(3.5 * lineSpacing);  // D in the space below the staff
+				break;
+			case "mi - e":
+				noteX = 200;
+				noteY = staffTop + (int)(3 * lineSpacing);  // E on the first line of the staff
+				break;
+			case "fa - f":
+				noteX = 250;
+				noteY = staffTop + (int)(2.5 * lineSpacing);  // F in the first space of the staff
+				break;
+			case "so - g":
+				noteX = 300;
+				noteY = staffTop + 2 * lineSpacing;  // G on the second line of the staff
+				break;
+			case "la - a":
+				noteX = 350;
+				noteY = staffTop + (int)(1.5 * lineSpacing);  // A in the second space of the staff
+				break;
+			case "ti - b":
+				noteX = 400;
+				noteY = staffTop + 1 * lineSpacing;  // B on the third line of the staff
+				break;
+			// case "quiet":
+			//     return; // Do not draw anything if the input is quiet
+			
+			// add a default case to handle unknown and quiet
+			default:
+				return;
+		}
 
-    // Draw the note as a small square or circle on the staff
-    fill(255, 0, 0);  // Red color for the note
-    noStroke();
-    rect(noteX, noteY - 10, 20, 20);  // Draw the square note
-}
+		// Draw the note as a small square or circle on the staff
+		fill(255, 0, 0);  // Red color for the note
+		noStroke();
+		rect(noteX, noteY - 10, 20, 20);  // Draw the square note
+	}
 
 	/*
 	 * This function saves the trainingData
@@ -343,11 +357,11 @@ void drawNoteOnStaff(String note) {
             in.close();
             fileIn.close();
 			 // Normalize the loaded training data
-			 for (String className : trainingData.keySet()) {
-				for (DataInstance instance : trainingData.get(className)) {
-					normalizeDataInstance(instance);
-				}
-			}
+			//  for (String className : trainingData.keySet()) {
+			// 	for (DataInstance instance : trainingData.get(className)) {
+			// 		normalizeDataInstance(instance);
+			// 	}
+			// }
             System.out.println("Training data loaded and normalized from " + filepath);
         } catch (Exception e) {
             e.printStackTrace();

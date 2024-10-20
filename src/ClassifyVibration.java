@@ -37,7 +37,10 @@ public class ClassifyVibration extends PApplet {
 	int classIndex = 0;
 	int dataCount = 0;
 
+	double magnitudeThreshold = 0.01; // Adjust this value as needed
+
 	MLClassifier classifier;
+
 
 	Map<String, List<DataInstance>> trainingData = new HashMap<>();
 	{for (String className : classNames){
@@ -103,12 +106,15 @@ public class ClassifyVibration extends PApplet {
 		fft.analyze(spectrum);
 
 		for(int i = 0; i < bands; i++){
-
-			/* the result of the FFT is normalized */
-			/* draw the line for frequency band i scaling it up by 40 to get more amplitude */
-			line( i, height, i, height - spectrum[i]*height*40);
-			fftFeatures[i] = spectrum[i];
-		} 
+			if (spectrum[i] >= magnitudeThreshold) {
+				// Only consider magnitudes above the threshold
+				line(i, height, i, height - spectrum[i] * height * 40);
+				fftFeatures[i] = spectrum[i];
+			} else {
+				fftFeatures[i] = 0; // Ignore or reset low magnitudes
+			}
+		}
+		
 
 		fill(255);
 		textSize(30);

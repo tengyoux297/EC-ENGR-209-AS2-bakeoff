@@ -27,7 +27,7 @@ public class ClassifyVibration extends PApplet {
 	Waveform waveform;
 	int bands = 128;
 
-	float windowLengthMs = 50;  // Window length in milliseconds, change the value to adjust the window length
+	float windowLengthMs = 500;  // Window length in milliseconds, change the value to adjust the window length
 	float fs = 44100;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
 	int nsamples = (int)(fs * windowLengthMs / 1000);  // Convert ms to seconds
 
@@ -51,60 +51,61 @@ public class ClassifyVibration extends PApplet {
 	DataInstance captureInstance (String label){
 		DataInstance res = new DataInstance();
 		res.label = label;
-		// Normalize the fftFeatures array before storing them as measurements
-		normalizeFftFeatures();
 		res.measurements = fftFeatures.clone();
+		normalizeDataInstance(res);
 		return res;
 	}
-	// Normalize each instance's data
+	// Z-score normalization for a single DataInstance's measurements
 	public void normalizeDataInstance(DataInstance instance) {
-		// Normalize the fftFeatures of each instance using min-max scaling or any other method
-		float minVal = Float.MAX_VALUE;
-		float maxVal = Float.MIN_VALUE;
+		// Calculate mean and standard deviation for the instance's measurements
+		float mean = 0;
+		float sumSquaredDiffs = 0;
 
 		for (float measurement : instance.measurements) {
-			if (measurement > maxVal) {
-				maxVal = measurement;
-			}
-			if (measurement < minVal) {
-				minVal = measurement;
-			}
+			mean += measurement;
 		}
+		mean /= instance.measurements.length;
 
+		for (float measurement : instance.measurements) {
+			sumSquaredDiffs += (measurement - mean) * (measurement - mean);
+		}
+		float stddev = (float) Math.sqrt(sumSquaredDiffs / instance.measurements.length);
+
+		// Apply Z-score normalization
 		for (int i = 0; i < instance.measurements.length; i++) {
-			if (maxVal != minVal) {
-				instance.measurements[i] = (instance.measurements[i] - minVal) / (maxVal - minVal);
+			if (stddev != 0) {
+				instance.measurements[i] = (instance.measurements[i] - mean) / stddev;
 			} else {
-				instance.measurements[i] = 0;
+				instance.measurements[i] = 0;  // If stddev is 0, set normalized value to 0
 			}
 		}
 	}
-	// Function to normalize the fftFeatures using min-max normalization
+	// Z-score normalization for fftFeatures array
 	public void normalizeFftFeatures() {
-    // Find the minimum and maximum values in fftFeatures array
-		float minVal = Float.MAX_VALUE;
-		float maxVal = Float.MIN_VALUE;
+		float mean = 0;
+		float sumSquaredDiffs = 0;
 
-		// Find min and max values
-		for (int i = 0; i < fftFeatures.length; i++) {
-			if (fftFeatures[i] > maxVal) {
-				maxVal = fftFeatures[i];
-			}
-			if (fftFeatures[i] < minVal) {
-				minVal = fftFeatures[i];
-			}
+		// Calculate mean
+		for (float feature : fftFeatures) {
+			mean += feature;
 		}
+		mean /= fftFeatures.length;
 
-		// Normalize the fftFeatures using min-max normalization
+		// Calculate standard deviation
+		for (float feature : fftFeatures) {
+			sumSquaredDiffs += (feature - mean) * (feature - mean);
+		}
+		float stddev = (float) Math.sqrt(sumSquaredDiffs / fftFeatures.length);
+
+		// Apply Z-score normalization
 		for (int i = 0; i < fftFeatures.length; i++) {
-			if (maxVal != minVal) {  // Prevent division by zero
-				fftFeatures[i] = (fftFeatures[i] - minVal) / (maxVal - minVal);
+			if (stddev != 0) {
+				fftFeatures[i] = (fftFeatures[i] - mean) / stddev;
 			} else {
-				fftFeatures[i] = 0;  // If all values are the same, set to 0
+				fftFeatures[i] = 0;  // If stddev is 0, set normalized value to 0
 			}
 		}
 	}
-	
 	public static void main(String[] args) {
 		PApplet.main("ClassifyVibration");
 	}

@@ -25,7 +25,7 @@ public class ClassifyVibration extends PApplet {
 	FFT fft;
 	AudioIn in;
 	Waveform waveform;
-	int bands = 512;
+	int bands = 128;
 
 	float windowLengthMs = 1000;  // Window length in milliseconds, change the value to adjust the window length
 	float fs = 44100;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
@@ -38,7 +38,7 @@ public class ClassifyVibration extends PApplet {
 	int classIndex = 0;
 	int dataCount = 0;
 
-	double magnitudeThreshold = 0.01; // Adjust this value as needed
+	double magnitudeThreshold = 0.05; // Adjust this value as needed
 
 	MLClassifier classifier;
 

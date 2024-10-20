@@ -90,21 +90,22 @@ public class ClassifyVibration extends PApplet {
 		fill(0);
 		stroke(255);
 		
-		waveform.analyze();
+		if (classifier == null) {
+			waveform.analyze();
 
-		beginShape();
-		  
-		for(int i = 0; i < nsamples; i++)
-		{
-			vertex(
-					map(i, 0, nsamples, 0, width),
-					map(waveform.data[i], -1, 1, 0, height)
-					);
-		}
-		
-		endShape();
+			beginShape();
+			
+			for(int i = 0; i < nsamples; i++)
+			{
+				vertex(
+						map(i, 0, nsamples, 0, width),
+						map(waveform.data[i], -1, 1, 0, height)
+						);
+			}
+			
+			endShape();
 
-		fft.analyze(spectrum);
+			fft.analyze(spectrum);
 
 		// for(int i = 0; i < bands; i++){
 		// 	if (spectrum[i] >= magnitudeThreshold) {
@@ -115,15 +116,18 @@ public class ClassifyVibration extends PApplet {
 		// 		fftFeatures[i] = 0; // Ignore or reset low magnitudes
 		// 	}
 		// }
-		
-
+		}
+		// Display the classification result
 		fill(255);
 		textSize(30);
+
 		if(classifier != null) {
+			drawStaff();
+        	
 			String guessedLabel = classifier.classify(captureInstance(null));	
 			// Yang: add code to stabilize your classification result
 			text("classified as: " + guessedLabel, 20, 30);
-
+			drawNoteOnStaff(guessedLabel);
             //add some code to make the UI more visual
 			// C4 (middle C) = 60 D4=62 E4=64 F4=65 G4=67 A4=69 B=71 C5 = 72
 			try {
@@ -174,6 +178,64 @@ public class ClassifyVibration extends PApplet {
 			text("Data collected: " + dataCount, 20, 60);
 		}
 	}
+int lineSpacing = 20;
+	// Centered and enlarged staff
+void drawStaff() {
+    int staffHeight = 5 * lineSpacing;  // Total height of the 5-line staff
+    int staffTop = height / 2 - staffHeight / 2;  // Center the staff vertically
+
+    // Draw the 5 horizontal lines of the staff
+    for (int i = 0; i < 5; i++) {
+        line(50, staffTop + i * lineSpacing, width - 50, staffTop + i * lineSpacing);
+    }
+}
+
+// Function to map notes to their position on the staff
+void drawNoteOnStaff(String note) {
+    int staffHeight = 5 * lineSpacing;
+    int staffTop = height / 2 - staffHeight / 2;
+    int noteX = 0;       // X-position for the note (you can change or animate this)
+
+    // Map note names to Y positions on the staff
+    int noteY = 0;
+    switch (note) {
+        case "do - c":
+			noteX = 100;
+            noteY = staffTop + 4 * lineSpacing;  // Middle C on the first ledger line below the staff
+            break;
+        case "re - d":
+			noteX = 150;
+            noteY = staffTop + (int)(3.5 * lineSpacing);  // D in the space below the staff
+            break;
+        case "mi - e":
+			noteX = 200;
+            noteY = staffTop + (int)(3 * lineSpacing);  // E on the first line of the staff
+            break;
+        case "fa - f":
+			noteX = 250;
+            noteY = staffTop + (int)(2.5 * lineSpacing);  // F in the first space of the staff
+            break;
+        case "so - g":
+			noteX = 300;
+            noteY = staffTop + 2 * lineSpacing;  // G on the second line of the staff
+            break;
+        case "la - a":
+			noteX = 350;
+            noteY = staffTop + (int)(1.5 * lineSpacing);  // A in the second space of the staff
+            break;
+        case "ti - b":
+			noteX = 400;
+            noteY = staffTop + 1 * lineSpacing;  // B on the third line of the staff
+            break;
+        case "quiet":
+            return; // Do not draw anything if the input is quiet
+    }
+
+    // Draw the note as a small square or circle on the staff
+    fill(255, 0, 0);  // Red color for the note
+    noStroke();
+    rect(noteX, noteY - 10, 20, 20);  // Draw the square note
+}
 
 	/*
 	 * This function saves the trainingData

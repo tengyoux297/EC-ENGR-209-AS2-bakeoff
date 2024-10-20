@@ -105,15 +105,15 @@ public class ClassifyVibration extends PApplet {
 
 		fft.analyze(spectrum);
 
-		for(int i = 0; i < bands; i++){
-			if (spectrum[i] >= magnitudeThreshold) {
-				// Only consider magnitudes above the threshold
-				line(i, height, i, height - spectrum[i] * height * 40);
-				fftFeatures[i] = spectrum[i];
-			} else {
-				fftFeatures[i] = 0; // Ignore or reset low magnitudes
-			}
-		}
+		// for(int i = 0; i < bands; i++){
+		// 	if (spectrum[i] >= magnitudeThreshold) {
+		// 		// Only consider magnitudes above the threshold
+		// 		line(i, height, i, height - spectrum[i] * height * 40);
+		// 		fftFeatures[i] = spectrum[i];
+		// 	} else {
+		// 		fftFeatures[i] = 0; // Ignore or reset low magnitudes
+		// 	}
+		// }
 		
 
 		fill(255);

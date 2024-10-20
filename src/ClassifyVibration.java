@@ -27,7 +27,7 @@ public class ClassifyVibration extends PApplet {
 	int bands = 512;
 
 	float windowLengthMs = 1000;  // Window length in milliseconds, change the value to adjust the window length
-	float fs = 88200;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
+	float fs = 44100;           // Sampling rate (samples per second), typically 44,100 Hz as the typical setting in AudioIn library
 	int nsamples = (int)(fs * windowLengthMs / 1000);  // Convert ms to seconds
 
 	// int nsamples = 1024;
@@ -155,38 +155,41 @@ public class ClassifyVibration extends PApplet {
             //add some code to make the UI more visual
 			// C4 (middle C) = 60 D4=62 E4=64 F4=65 G4=67 A4=69 B=71 C5 = 72
 			try {
-				// Get a synthesizer (for output only) and open it
-				Synthesizer synthesizer = MidiSystem.getSynthesizer();
-				synthesizer.open();
-				// Get MIDI channels (output channels for playing notes)
-				MidiChannel[] channels = synthesizer.getChannels();
-				MidiChannel piano = channels[0]; // Channel 0 is a piano
-	
-				if(stabilizedLabel.equals("do - c")){
-					piano.noteOn(60, 80);  // Note 60 is Middle C, velocity 80
+				if(!stabilizedLabel.equals("quiet")){
+					// Get a synthesizer (for output only) and open it
+					Synthesizer synthesizer = MidiSystem.getSynthesizer();
+					synthesizer.open();
+					// Get MIDI channels (output channels for playing notes)
+					MidiChannel[] channels = synthesizer.getChannels();
+					MidiChannel piano = channels[0]; // Channel 0 is a piano
+		
+					if(stabilizedLabel.equals("do - c")){
+						piano.noteOn(60, 80);  // Note 60 is Middle C, velocity 80
+					}
+					else if(stabilizedLabel.equals("re - d")){
+						piano.noteOn(62, 80);  // Note 62 is Middle D, velocity 80
+					}
+					else if(stabilizedLabel.equals("mi - e")){
+						piano.noteOn(64, 80);  // Note 64 is Middle E, velocity 80
+					}
+					else if(stabilizedLabel.equals("fa - f")){
+						piano.noteOn(65, 80);  // Note 65 is Middle F, velocity 80
+					}
+					else if(stabilizedLabel.equals("so - g")){
+						piano.noteOn(67, 80);  // Note 67 is Middle G, velocity 80	
+					}
+					else if(stabilizedLabel.equals("la - a")){
+						piano.noteOn(69, 80);  // Note 69 is Middle A, velocity 80
+					}
+					else if(stabilizedLabel.equals("ti - b")){
+						piano.noteOn(71, 80);  // Note 71 is Middle B, velocity 80
+					}		
+					// Close the synthesizer when done
+					Thread.sleep(1000);    // Play the note for 1 second
+					piano.noteOff(60);     // Turn off the note
+					synthesizer.close();
 				}
-				else if(stabilizedLabel.equals("re - d")){
-					piano.noteOn(62, 80);  // Note 62 is Middle D, velocity 80
-				}
-				else if(stabilizedLabel.equals("mi - e")){
-					piano.noteOn(64, 80);  // Note 64 is Middle E, velocity 80
-				}
-				else if(stabilizedLabel.equals("fa - f")){
-					piano.noteOn(65, 80);  // Note 65 is Middle F, velocity 80
-				}
-				else if(stabilizedLabel.equals("so - g")){
-					piano.noteOn(67, 80);  // Note 67 is Middle G, velocity 80	
-				}
-				else if(stabilizedLabel.equals("la - a")){
-					piano.noteOn(69, 80);  // Note 69 is Middle A, velocity 80
-				}
-				else if(stabilizedLabel.equals("ti - b")){
-					piano.noteOn(71, 80);  // Note 71 is Middle B, velocity 80
-				}		
-				// Close the synthesizer when done
-				Thread.sleep(1000);    // Play the note for 1 second
-				piano.noteOff(60);     // Turn off the note
-				synthesizer.close();
+
 
 			} catch (MidiUnavailableException e) {
 				System.err.println("MIDI device is unavailable: " + e.getMessage());

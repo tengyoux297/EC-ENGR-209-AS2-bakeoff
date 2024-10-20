@@ -38,7 +38,29 @@ public class ClassifyVibration extends PApplet {
 	int dataCount = 0;
 
 	MLClassifier classifier;
-	
+	// New variable to store the recent classifications
+	List<String> recentClassifications = new ArrayList<>();
+	int historySize = 10; // How many classifications to store for voting
+
+	// Method to get the majority vote from the recent classifications
+	public String getMajorityVote(List<String> classifications) {
+		Map<String, Integer> counts = new HashMap<>();
+		for (String label : classifications) {
+			counts.put(label, counts.getOrDefault(label, 0) + 1);
+		}
+
+		// Find the label with the highest count
+		String majorityLabel = null;
+		int maxCount = 0;
+		for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+			if (entry.getValue() > maxCount) {
+				majorityLabel = entry.getKey();
+				maxCount = entry.getValue();
+			}
+		}
+		return majorityLabel;
+	}
+
 	Map<String, List<DataInstance>> trainingData = new HashMap<>();
 	{for (String className : classNames){
 		trainingData.put(className, new ArrayList<DataInstance>());
@@ -113,11 +135,24 @@ public class ClassifyVibration extends PApplet {
 		fill(255);
 		textSize(30);
 		if(classifier != null) {
-			String guessedLabel = classifier.classify(captureInstance(null));	
-			// Yang: add code to stabilize your classification result
-			text("classified as: " + guessedLabel, 20, 30);
-            //add some code to make the UI more visual 
-			
+			// String guessedLabel = classifier.classify(captureInstance(null));	
+			// // Yang: add code to stabilize your classification result
+			// text("classified as: " + guessedLabel, 20, 30);
+			String guessedLabel = "Unknown";
+			guessedLabel = classifier.classify(captureInstance(null));
+
+            // Add the classification result to the recent classifications
+            recentClassifications.add(guessedLabel);
+            if (recentClassifications.size() > historySize) {
+                recentClassifications.remove(0); // Keep only the most recent `historySize` predictions
+            }
+
+            // Get the stabilized label using majority voting
+            String stabilizedLabel = getMajorityVote(recentClassifications);
+
+            text("classified as: " + stabilizedLabel, 20, 30);
+
+            //add some code to make the UI more visual
 			// C4 (middle C) = 60 D4=62 E4=64 F4=65 G4=67 A4=69 B=71 C5 = 72
 			try {
 				// Get a synthesizer (for output only) and open it

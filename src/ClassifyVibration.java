@@ -1,3 +1,4 @@
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -38,10 +39,13 @@ public class ClassifyVibration extends PApplet {
 	int classIndex = 0;
 	int dataCount = 0;
 
-	double magnitudeThreshold = 0.015;//0.05; // Adjust this value as needed
+	double magnitudeThreshold = 0.05; // Adjust this value as needed
 
 	MLClassifier classifier;
 
+	// array to store all the rectangles representing the notes
+	ArrayList<Rectangle> rectangles = new ArrayList<>();
+	int lineSpacing = 20;
 
 	Map<String, List<DataInstance>> trainingData = new HashMap<>();
 	{for (String className : classNames){
@@ -149,33 +153,27 @@ public class ClassifyVibration extends PApplet {
 		fill(0);
 		stroke(255);
 		
-		// if (classifier == null) {
-			waveform.analyze();
+		waveform.analyze();
 
-			// if(classifier == null){
-				beginShape();
+		if(classifier == null){
+			beginShape();
+		
+			for(int i = 0; i < nsamples; i++)
+			{
+				vertex(
+						map(i, 0, nsamples, 0, width),
+						map(waveform.data[i], -1, 1, 0, height)
+						);
+			}
 			
-				for(int i = 0; i < nsamples; i++)
-				{
-					vertex(
-							map(i, 0, nsamples, 0, width),
-							map(waveform.data[i], -1, 1, 0, height)
-							);
-				}
-				
-				endShape();
-			// }
+			endShape();
+		}
 
-			fft.analyze(spectrum);
+		fft.analyze(spectrum);
 
 		for(int i = 0; i < bands; i++){
 			// Only consider magnitudes above the threshold
 			if (spectrum[i] >= magnitudeThreshold) {
-
-				// only draw the waveform when the classifier is null
-				// if(classifier == null){
-				// 	line(i, height, i, height - spectrum[i] * height * 40);
-				// }
 
 				fftFeatures[i] = spectrum[i];
 			} else {
@@ -187,11 +185,11 @@ public class ClassifyVibration extends PApplet {
 		// normalizeFftFeatures();
 
 		// draw the fftFeatures after normalization
-		for(int i = 0; i < bands; i++){
-			line(i, height, i, height - fftFeatures[i] * height * 40);
+		if(classifier == null){
+			for(int i = 0; i < bands; i++){
+				line(i, height, i, height - fftFeatures[i] * height * 40);
+			}
 		}
-
-		// }
 
 		// Display the classification result
 		fill(255);
@@ -200,16 +198,24 @@ public class ClassifyVibration extends PApplet {
 		if(classifier != null) {
 			// normalizeFftFeatures();
 
-			// drawStaff();
+			drawStaff();
         	
 			String guessedLabel = classifier.classify(captureInstance(null));	
 			// Yang: add code to stabilize your classification result
 			text("classified as: " + guessedLabel, 20, 30);
-			drawNoteOnStaff(guessedLabel);
+
+			
+
+			// display the notes
+			updateNotes();
+
             //add some code to make the UI more visual
 			// C4 (middle C) = 60 D4=62 E4=64 F4=65 G4=67 A4=69 B=71 C5 = 72
 			try {
 				if(!guessedLabel.equals("quiet")){
+
+					drawNoteOnStaff(guessedLabel);
+
 					// Get a synthesizer (for output only) and open it
 					Synthesizer synthesizer = MidiSystem.getSynthesizer();
 					synthesizer.open();
@@ -242,6 +248,8 @@ public class ClassifyVibration extends PApplet {
 					Thread.sleep(1000);    // Play the note for 1 second
 					piano.noteOff(60);     // Turn off the note
 					synthesizer.close();
+
+					// System.out.println("the note is playing right now:" + guessedLabel);
 				}
 
 
@@ -267,7 +275,6 @@ public class ClassifyVibration extends PApplet {
 		// 	drawStaff();
 		// 	drawNoteOnStaff(guessedLabel);
 	
-		// 	// MIDI code follows as before...
 		// } 
 
 		else {
@@ -278,7 +285,6 @@ public class ClassifyVibration extends PApplet {
 		}
 	}
 
-	int lineSpacing = 20;
 	// Centered and enlarged staff
 	void drawStaff() {
 		int staffHeight = 5 * lineSpacing;  // Total height of the 5-line staff
@@ -290,42 +296,54 @@ public class ClassifyVibration extends PApplet {
 		}
 	}
 
+	void updateNotes(){
+		fill(255, 0, 0);  // Red color for the note
+		noStroke();
+		for(Rectangle rect : rectangles){
+			rect.x -= 3;
+			rect(rect.x, rect.y, rect.width, rect.height);
+		}
+		rectangles.removeIf(rect -> rect.x > width || rect.x < 0);
+	}
+
 	// Function to map notes to their position on the staff
 	void drawNoteOnStaff(String note) {
+		System.out.println("the note is playing right now:" + note);
+		
+		int noteX = 0;       // X-position for the note (you can change or animate this)
 		int staffHeight = 5 * lineSpacing;
 		int staffTop = height / 2 - staffHeight / 2;
-		int noteX = 0;       // X-position for the note (you can change or animate this)
 
 		// Map note names to Y positions on the staff
 		int noteY = 0;
 		switch (note) {
 			case "do - c":
 				noteX = 100;
-				noteY = staffTop + 4 * lineSpacing;  // Middle C on the first ledger line below the staff
+				noteY = staffTop + 1 * lineSpacing;  // Middle C on the first ledger line below the staff
 				break;
 			case "re - d":
 				noteX = 150;
-				noteY = staffTop + (int)(3.5 * lineSpacing);  // D in the space below the staff
+				noteY = staffTop + (int)(0.5 * lineSpacing);  // D in the space below the staff
 				break;
 			case "mi - e":
 				noteX = 200;
-				noteY = staffTop + (int)(3 * lineSpacing);  // E on the first line of the staff
+				noteY = staffTop; // + (int)(5 * lineSpacing);  // E on the first line of the staff
 				break;
 			case "fa - f":
 				noteX = 250;
-				noteY = staffTop + (int)(2.5 * lineSpacing);  // F in the first space of the staff
+				noteY = staffTop - (int)(0.5 * lineSpacing);  // F in the first space of the staff
 				break;
 			case "so - g":
 				noteX = 300;
-				noteY = staffTop + 2 * lineSpacing;  // G on the second line of the staff
+				noteY = staffTop + (int)(2.5 * lineSpacing);  // G on the second line of the staff
 				break;
 			case "la - a":
 				noteX = 350;
-				noteY = staffTop + (int)(1.5 * lineSpacing);  // A in the second space of the staff
+				noteY = staffTop + 2 * lineSpacing;  // A in the second space of the staff
 				break;
 			case "ti - b":
 				noteX = 400;
-				noteY = staffTop + 1 * lineSpacing;  // B on the third line of the staff
+				noteY = staffTop + (int)(1.5 * lineSpacing);  // B on the third line of the staff
 				break;
 			// case "quiet":
 			//     return; // Do not draw anything if the input is quiet
@@ -336,9 +354,12 @@ public class ClassifyVibration extends PApplet {
 		}
 
 		// Draw the note as a small square or circle on the staff
-		fill(255, 0, 0);  // Red color for the note
-		noStroke();
-		rect(noteX, noteY - 10, 20, 20);  // Draw the square note
+		// fill(255, 0, 0);  // Red color for the note
+		// noStroke();
+		if(noteX != 0){
+			rectangles.add(new Rectangle(width-50, noteY, 20, 20));  // Draw the square note
+		}
+		
 	}
 
 	/*

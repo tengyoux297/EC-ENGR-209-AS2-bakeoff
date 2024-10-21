@@ -39,7 +39,7 @@ public class ClassifyVibration extends PApplet {
 	int classIndex = 0;
 	int dataCount = 0;
 
-	double magnitudeThreshold = 0.05; // Adjust this value as needed
+	double magnitudeThreshold = 0.005; // Adjust this value as needed
 
 	MLClassifier classifier;
 

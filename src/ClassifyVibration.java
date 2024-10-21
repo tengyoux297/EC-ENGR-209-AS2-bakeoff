@@ -18,6 +18,8 @@ import processing.sound.Waveform;
 
 // save traningData
 import java.io.Serializable;
+import java.lang.reflect.Array;
+import org.w3c.dom.Text;
 
 /* A class with the main function and Processing visualizations to run the demo */
 
@@ -43,8 +45,19 @@ public class ClassifyVibration extends PApplet {
 
 	MLClassifier classifier;
 
+	// UI
 	// array to store all the rectangles representing the notes
-	ArrayList<Rectangle> rectangles = new ArrayList<>();
+	class MovingNote{
+		Rectangle rect;
+		String noteName;
+
+		MovingNote(Rectangle r, String s){
+			rect = r;
+			noteName = s;
+		}
+	}
+	ArrayList<MovingNote> movingNotes = new ArrayList<>();
+	// ArrayList<Rectangle> rectangles = new ArrayList<>();
 	int lineSpacing = 20;
 
 	Map<String, List<DataInstance>> trainingData = new HashMap<>();
@@ -296,14 +309,23 @@ public class ClassifyVibration extends PApplet {
 		}
 	}
 
+	// this function draw and updates the notes
 	void updateNotes(){
-		fill(255, 0, 0);  // Red color for the note
+		fill(255, 204, 0); 
 		noStroke();
-		for(Rectangle rect : rectangles){
-			rect.x -= 3;
-			rect(rect.x, rect.y, rect.width, rect.height);
+		textSize(30);
+		// for(Rectangle rect : rectangles){
+		// 	rect.x -= 3;
+		// 	rect(rect.x, rect.y, rect.width, rect.height);
+		// }
+		// rectangles.removeIf(rect -> rect.x > width || rect.x < 50);
+
+		for(MovingNote mn : movingNotes){
+			mn.rect.x -= 3;
+			rect(mn.rect.x, mn.rect.y, mn.rect.width, mn.rect.height);
+			text(mn.noteName, mn.rect.x, 270);
 		}
-		rectangles.removeIf(rect -> rect.x > width || rect.x < 0);
+		movingNotes.removeIf(mn -> mn.rect.x < 50);
 	}
 
 	// Function to map notes to their position on the staff
@@ -313,37 +335,46 @@ public class ClassifyVibration extends PApplet {
 		int noteX = 0;       // X-position for the note (you can change or animate this)
 		int staffHeight = 5 * lineSpacing;
 		int staffTop = height / 2 - staffHeight / 2;
+		String noteName;
 
 		// Map note names to Y positions on the staff
 		int noteY = 0;
+
 		switch (note) {
 			case "do - c":
 				noteX = 100;
 				noteY = staffTop + 1 * lineSpacing;  // Middle C on the first ledger line below the staff
+				noteName = "c";
 				break;
 			case "re - d":
 				noteX = 150;
 				noteY = staffTop + (int)(0.5 * lineSpacing);  // D in the space below the staff
+				noteName = "d";
 				break;
 			case "mi - e":
 				noteX = 200;
 				noteY = staffTop; // + (int)(5 * lineSpacing);  // E on the first line of the staff
+				noteName = "e";
 				break;
 			case "fa - f":
 				noteX = 250;
 				noteY = staffTop - (int)(0.5 * lineSpacing);  // F in the first space of the staff
+				noteName = "f";
 				break;
 			case "so - g":
 				noteX = 300;
 				noteY = staffTop + (int)(2.5 * lineSpacing);  // G on the second line of the staff
+				noteName = "g";
 				break;
 			case "la - a":
 				noteX = 350;
 				noteY = staffTop + 2 * lineSpacing;  // A in the second space of the staff
+				noteName = "a";
 				break;
 			case "ti - b":
 				noteX = 400;
 				noteY = staffTop + (int)(1.5 * lineSpacing);  // B on the third line of the staff
+				noteName = "b";
 				break;
 			// case "quiet":
 			//     return; // Do not draw anything if the input is quiet
@@ -357,7 +388,8 @@ public class ClassifyVibration extends PApplet {
 		// fill(255, 0, 0);  // Red color for the note
 		// noStroke();
 		if(noteX != 0){
-			rectangles.add(new Rectangle(width-50, noteY, 20, 20));  // Draw the square note
+			Rectangle rect = new Rectangle(width-50, noteY, 20, 20);  // Draw the square note
+			movingNotes.add(new MovingNote(rect, noteName));
 		}
 		
 	}

@@ -59,6 +59,8 @@ public class ClassifyVibration extends PApplet {
 	ArrayList<MovingNote> movingNotes = new ArrayList<>();
 	// ArrayList<Rectangle> rectangles = new ArrayList<>();
 	int lineSpacing = 20;
+	int noteMovingSpeed = 3;
+	int noteTextY = 270;
 
 	Map<String, List<DataInstance>> trainingData = new HashMap<>();
 	{for (String className : classNames){
@@ -321,9 +323,9 @@ public class ClassifyVibration extends PApplet {
 		// rectangles.removeIf(rect -> rect.x > width || rect.x < 50);
 
 		for(MovingNote mn : movingNotes){
-			mn.rect.x -= 3;
+			mn.rect.x -= noteMovingSpeed;
 			rect(mn.rect.x, mn.rect.y, mn.rect.width, mn.rect.height);
-			text(mn.noteName, mn.rect.x, 270);
+			text(mn.noteName, mn.rect.x, noteTextY);
 		}
 		movingNotes.removeIf(mn -> mn.rect.x < 50);
 	}
